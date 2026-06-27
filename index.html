@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Leather AI Sales Assistant — Leather Warehouse</title>
+<meta name="description" content="ผู้ช่วย AI สำหรับทีมขายและลูกค้า Leather Warehouse — ค้นหาและเปรียบเทียบหนังแท้ หนังเทียม ไมโครไฟเบอร์ มารีน และอากาศยาน" />
+<meta name="theme-color" content="#1b1310" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%231b1310'/%3E%3Ctext x='50' y='65' font-size='52' text-anchor='middle' fill='%23d4af6a'%3EL%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-mark">L</div>
+      <div class="brand-text">
+        <span class="brand-name">Leather AI Sales Assistant</span>
+        <span class="brand-badge">Company Knowledge Only</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="lang-toggle" id="langToggleBtn" type="button" aria-label="Toggle language">TH / EN</button>
+    </div>
+  </header>
+
+  <!-- ===================== DESKTOP SIDEBAR ===================== -->
+  <nav class="sidebar desktop-only" id="sidebarNav" aria-label="Main navigation">
+    <div class="nav-section-label" data-i18n="sectionCustomer">สำหรับลูกค้า</div>
+    <button class="nav-item active" data-view="chat">💬 <span data-i18n="navChat">แชทผู้เชี่ยวชาญ</span></button>
+    <button class="nav-item" data-view="finder">🔎 <span data-i18n="navFinder">ค้นหาสินค้า</span></button>
+    <button class="nav-item" data-view="compare">⚖️ <span data-i18n="navCompare">เทียบสินค้า</span></button>
+    <button class="nav-item" data-view="imagematch">🖼️ <span data-i18n="navImageMatch">เทียบจากรูป</span></button>
+    <button class="nav-item" data-view="quote">📝 <span data-i18n="navQuote">ขอใบเสนอราคา</span></button>
+    <div class="nav-section-label" data-i18n="sectionSales">สำหรับทีมขาย</div>
+    <button class="nav-item" data-view="admin">📊 <span data-i18n="navAdmin">แดชบอร์ดทีมขาย</span></button>
+    <button class="nav-item" data-view="kb">🗄️ <span data-i18n="navKB">จัดการฐานข้อมูล</span></button>
+    <button class="nav-item" data-view="leads">📥 <span data-i18n="navLeads">Lead Inbox</span></button>
+  </nav>
+
+  <!-- ===================== MAIN CONTENT ===================== -->
+  <main class="app-main" id="appMain">
+
+    <!-- ---------- CHAT VIEW ---------- -->
+    <section class="view active" id="view-chat">
+      <div class="chat-wrap">
+        <div class="quick-questions" id="quickQuestions"></div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input-bar">
+          <input type="text" id="chatInput" class="form-control" placeholder="พิมพ์คำถามเกี่ยวกับหนัง..." />
+          <button class="btn btn-primary" id="chatSendBtn" type="button">ส่ง</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- PRODUCT FINDER VIEW ---------- -->
+    <section class="view" id="view-finder">
+      <h2 class="view-title">ค้นหาสินค้าตามลักษณะการใช้งาน</h2>
+      <p class="view-subtitle">เลือกประเภทการใช้งานเพื่อรับคำแนะนำสินค้าที่เหมาะสม</p>
+      <div class="grid grid-3" id="finderUsecaseGrid"></div>
+      <div id="finderResultsWrap" style="display:none;">
+        <h3 class="view-title" style="margin-top:28px;">สินค้าที่แนะนำ</h3>
+        <div class="grid grid-3" id="finderResults"></div>
+      </div>
+    </section>
+
+    <!-- ---------- COMPARE VIEW ---------- -->
+    <section class="view" id="view-compare">
+      <h2 class="view-title">เปรียบเทียบสินค้า</h2>
+      <p class="view-subtitle">เลือกสินค้า 2-3 รายการเพื่อเปรียบเทียบ</p>
+      <div class="grid grid-3" id="comparePicker"></div>
+      <div class="table-scroll" id="compareTableWrap" style="margin-top:20px;"></div>
+    </section>
+
+    <!-- ---------- IMAGE MATCH VIEW ---------- -->
+    <section class="view" id="view-imagematch">
+      <h2 class="view-title">เทียบสินค้าจากรูปภาพ</h2>
+      <div class="disclaimer-box">การเทียบจากรูปเป็นการประเมินเบื้องต้น สีจริงและผิวสัมผัสต้องยืนยันด้วย sample จริง</div>
+      <label class="upload-dropzone" id="imgDropzone">
+        <input type="file" id="imgUploadInput" accept="image/*" hidden />
+        <span id="imgDropzoneText">แตะเพื่ออัปโหลดรูปภาพหนัง/วัสดุที่ต้องการเทียบ</span>
+        <img id="imgPreview" style="display:none;max-width:100%;border-radius:12px;margin-top:12px;" />
+      </label>
+      <div id="imgCompareOptions" class="grid grid-3" style="display:none;margin-top:20px;">
+        <button class="btn btn-outline" data-compare="color">เทียบสี</button>
+        <button class="btn btn-outline" data-compare="texture">เทียบผิวสัมผัส</button>
+        <button class="btn btn-outline" data-compare="properties">เทียบคุณสมบัติ</button>
+        <button class="btn btn-outline" data-compare="usecase">เทียบตามการใช้งาน</button>
+      </div>
+      <div id="imgMatchResultsWrap" style="display:none;margin-top:20px;">
+        <h3 class="view-title">สินค้าที่ใกล้เคียง</h3>
+        <div class="grid grid-3" id="imgMatchResults"></div>
+      </div>
+    </section>
+
+    <!-- ---------- QUOTE REQUEST VIEW ---------- -->
+    <section class="view" id="view-quote">
+      <h2 class="view-title">ขอใบเสนอราคา / ขอตัวอย่างสินค้า</h2>
+      <form class="card" id="quoteForm">
+        <div class="grid grid-2">
+          <div><label>ชื่อลูกค้า *</label><input required class="form-control" name="name" /></div>
+          <div><label>บริษัท</label><input class="form-control" name="company" /></div>
+          <div><label>เบอร์โทร *</label><input required class="form-control" name="phone" /></div>
+          <div><label>LINE ID</label><input class="form-control" name="line" /></div>
+          <div><label>อีเมล</label><input type="email" class="form-control" name="email" /></div>
+          <div>
+            <label>ประเภทงาน / การใช้งาน</label>
+            <select class="form-control" name="useCase" id="quoteUseCaseSelect">
+              <option value="">-- เลือก --</option>
+            </select>
+          </div>
+          <div><label>จำนวนที่ต้องการ</label><input class="form-control" name="quantity" placeholder="เช่น 50 เมตร" /></div>
+          <div><label>จังหวัดจัดส่ง</label><input class="form-control" name="province" /></div>
+          <div><label>ต้องการภายในวันที่</label><input type="date" class="form-control" name="neededDate" /></div>
+        </div>
+        <div style="margin-top:14px;">
+          <label>สินค้าที่สนใจ</label>
+          <div class="chip-row" id="quoteProductChips"></div>
+        </div>
+        <div style="margin-top:14px;">
+          <label>หมายเหตุเพิ่มเติม</label>
+          <textarea class="form-control" name="note" rows="3"></textarea>
+        </div>
+        <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button type="submit" class="btn btn-primary">ส่งคำขอใบเสนอราคา</button>
+          <button type="button" class="btn btn-outline" id="quoteSampleBtn">ขอตัวอย่างสินค้า (Sample)</button>
+        </div>
+        <div id="quoteConfirmMsg" class="empty-state" style="display:none;margin-top:16px;"></div>
+      </form>
+    </section>
+
+    <!-- ---------- ADMIN DASHBOARD VIEW ---------- -->
+    <section class="view" id="view-admin">
+      <h2 class="view-title">แดชบอร์ดทีมขาย</h2>
+      <div class="grid grid-3" id="adminStatCards"></div>
+      <div class="grid grid-2" style="margin-top:24px;">
+        <div class="card">
+          <h3 class="view-title" style="font-size:1.05rem;">คำถามที่ถูกถามบ่อย</h3>
+          <div id="adminTopQuestions" class="list-row-wrap"></div>
+        </div>
+        <div class="card">
+          <h3 class="view-title" style="font-size:1.05rem;">สินค้าที่ถูกถามถึงบ่อย</h3>
+          <div id="adminTopProducts" class="list-row-wrap"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:20px;">
+        <h3 class="view-title" style="font-size:1.05rem;">Use Case ที่ลูกค้าสนใจมากที่สุด</h3>
+        <div id="adminTopUsecases" class="list-row-wrap"></div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" id="exportCsvBtn">Export Leads to CSV</button>
+        <button class="btn btn-danger" id="resetDemoBtn">Reset Demo Data</button>
+      </div>
+    </section>
+
+    <!-- ---------- KNOWLEDGE BASE MANAGER VIEW ---------- -->
+    <section class="view" id="view-kb">
+      <h2 class="view-title">จัดการฐานข้อมูล (Knowledge Base Manager)</h2>
+      <div class="kb-tabs" id="kbTabs">
+        <button class="kb-tab active" data-kb="products">Products</button>
+        <button class="kb-tab" data-kb="faqs">FAQs</button>
+        <button class="kb-tab" data-kb="usecases">Use Cases</button>
+        <button class="kb-tab" data-kb="priceRules">Price Rules</button>
+        <button class="kb-tab" data-kb="leadTimes">Lead Times</button>
+      </div>
+      <div style="margin:14px 0;">
+        <button class="btn btn-primary" id="kbAddBtn">+ Add new</button>
+      </div>
+      <div class="table-scroll" id="kbTableWrap"></div>
+    </section>
+
+    <!-- ---------- LEAD INBOX VIEW ---------- -->
+    <section class="view" id="view-leads">
+      <h2 class="view-title">Lead Inbox</h2>
+      <div class="table-scroll" id="leadsTableWrap"></div>
+    </section>
+
+  </main>
+
+  <!-- ===================== MOBILE BOTTOM NAV ===================== -->
+  <nav class="bottom-nav mobile-only" id="bottomNav" aria-label="Mobile navigation">
+    <button class="nav-item active" data-view="chat"><span>💬</span><small>แชท</small></button>
+    <button class="nav-item" data-view="finder"><span>🔎</span><small>ค้นหา</small></button>
+    <button class="nav-item" data-view="compare"><span>⚖️</span><small>เทียบ</small></button>
+    <button class="nav-item" data-view="quote"><span>📝</span><small>เสนอราคา</small></button>
+    <button class="nav-item" data-view="more" id="moreNavBtn"><span>☰</span><small>เมนู</small></button>
+  </nav>
+
+</div>
+
+<!-- ===================== "MORE" SHEET (mobile) ===================== -->
+<div class="modal-backdrop" id="moreSheetBackdrop">
+  <div class="modal-box" id="moreSheetBox">
+    <div class="modal-header"><h3>เมนูเพิ่มเติม</h3><button class="modal-close" id="moreSheetClose">✕</button></div>
+    <div class="modal-body" style="display:flex;flex-direction:column;gap:8px;">
+      <button class="btn btn-outline" data-view="imagematch">🖼️ เทียบจากรูป</button>
+      <button class="btn btn-outline" data-view="admin">📊 แดชบอร์ดทีมขาย</button>
+      <button class="btn btn-outline" data-view="kb">🗄️ จัดการฐานข้อมูล</button>
+      <button class="btn btn-outline" data-view="leads">📥 Lead Inbox</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== GENERIC CRUD MODAL (KB Manager) ===================== -->
+<div class="modal-backdrop" id="kbModalBackdrop">
+  <div class="modal-box" id="kbModalBox">
+    <div class="modal-header"><h3 id="kbModalTitle">เพิ่มข้อมูล</h3><button class="modal-close" id="kbModalClose">✕</button></div>
+    <div class="modal-body" id="kbModalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="kbModalCancel">ยกเลิก</button>
+      <button class="btn btn-primary" id="kbModalSave">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== TOAST ===================== -->
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

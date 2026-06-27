@@ -1,0 +1,7 @@
+[
+  { "id": "L001", "condition": "สินค้ามีสต๊อก (สีหลัก)", "estimatedDays": "2-7 วันทำการ", "note": "ขึ้นอยู่กับรุ่นสินค้าและพื้นที่จัดส่ง", "requiresConfirmation": false },
+  { "id": "L002", "condition": "สินค้าสั่งผลิต / สีพิเศษ (Made-to-order ทั่วไป)", "estimatedDays": "15-25 วันทำการ", "note": "ให้ AE ยืนยันตามรุ่นและปริมาณ", "requiresConfirmation": true },
+  { "id": "L003", "condition": "Marine Grade (สีพิเศษ)", "estimatedDays": "30-35 วันทำการ", "note": "ต้องตรวจสอบ certificate IMO ก่อนยืนยัน", "requiresConfirmation": true },
+  { "id": "L004", "condition": "Aviation Grade (ทุกออเดอร์)", "estimatedDays": "45-60 วันทำการ", "note": "ต้องผ่านการทดสอบและออกเอกสารรับรองก่อนผลิตจริง", "requiresConfirmation": true },
+  { "id": "L005", "condition": "งานโครงการปริมาณมาก (มากกว่า 500 เมตร)", "estimatedDays": "ขึ้นอยู่กับกำลังการผลิต", "note": "ให้ AE จัดทำแผนการผลิตและจัดส่งเฉพาะโครงการ", "requiresConfirmation": true }
+]

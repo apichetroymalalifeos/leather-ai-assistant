@@ -1,0 +1,10 @@
+[
+  { "productId": "P001", "retailPrice": "2,450 บาท/เมตร", "projectPrice": "ติดต่อ AE", "discountTier": "ลด 5% เมื่อสั่ง 200+ เมตร (ให้ AE ยืนยัน)", "minimumOrder": "10 เมตร", "remark": "มาร์จิ้นสูง เหมาะงานพรีเมียม", "requiresAEConfirmation": true },
+  { "productId": "P002", "retailPrice": "1,890 บาท/เมตร", "projectPrice": "ติดต่อ AE", "discountTier": "ตามปริมาณ ให้ AE ยืนยัน", "minimumOrder": "20 เมตร", "remark": "ต้องตรวจสอบ certificate IMO ก่อนเสนอราคาสุดท้าย", "requiresAEConfirmation": true },
+  { "productId": "P003", "retailPrice": "ติดต่อ AE", "projectPrice": "ติดต่อ AE", "discountTier": "ไม่มีส่วนลดมาตรฐาน", "minimumOrder": "ตามสเปกที่นั่ง", "remark": "ราคาขึ้นกับสเปกเครื่องบินและจำนวนที่นั่ง", "requiresAEConfirmation": true },
+  { "productId": "P004", "retailPrice": "990 บาท/เมตร", "projectPrice": "ติดต่อ AE", "discountTier": "ลดขั้นบันไดเมื่อสั่ง 500+ เมตร", "minimumOrder": "10 เมตร", "remark": "สินค้าขายดีงานออฟฟิศ", "requiresAEConfirmation": false },
+  { "productId": "P005", "retailPrice": "1,350 บาท/เมตร", "projectPrice": "ติดต่อ AE", "discountTier": "ตามปริมาณงานโครงการ", "minimumOrder": "30 เมตร", "remark": "ต้องแนบ certificate กันไฟให้ลูกค้า", "requiresAEConfirmation": true },
+  { "productId": "P006", "retailPrice": "1,590 บาท/เมตร", "projectPrice": "ติดต่อ AE", "discountTier": "ตามปริมาณงานสถานพยาบาล", "minimumOrder": "20 เมตร", "remark": "ตรวจสอบความเข้ากันได้กับน้ำยาฆ่าเชื้อ", "requiresAEConfirmation": true },
+  { "productId": "P007", "retailPrice": "1,190 บาท/เมตร", "projectPrice": "ติดต่อ AE", "discountTier": "ตามปริมาณงานรีสอร์ท", "minimumOrder": "15 เมตร", "remark": "เหมาะงาน outdoor", "requiresAEConfirmation": false },
+  { "productId": "P008", "retailPrice": "1,490 บาท/เมตร", "projectPrice": "ติดต่อ AE", "discountTier": "ตามปริมาณการสั่งซื้อ", "minimumOrder": "10 เมตร", "remark": "นิยมในกลุ่มอู่หุ้มเบาะ", "requiresAEConfirmation": false }
+]
