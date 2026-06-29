@@ -92,8 +92,47 @@
     leads: "leatherai_leads",
     chatLog: "leatherai_chatlog",
     lang: "leatherai_lang",
-    initFlag: "leatherai_initialized_v1"
+    initFlag: "leatherai_initialized_v1",
+    unreadLeads: "leatherai_unread_leads",
+    unreadAE: "leatherai_unread_ae"
   };
+
+  /* ===========================================================================
+     2b. NOTIFICATIONS — Browser/OS alerts for the sales team
+     This app has no backend/server (local-first, static PWA), so there is no
+     way to push a real notification to a phone/LINE/email when the app is
+     fully closed. What we CAN do, and what this adds, is:
+       1) A real Browser/OS notification (Notification API) that pops up
+          on this device while the app/tab (or installed PWA) is open/running.
+       2) A persistent "unread" badge count saved in localStorage, so even if
+          the popup is missed, dismissed, or permission was never granted,
+          opening the app shows an unmistakable red counter on the relevant
+          menu until it's been viewed.
+     This fires for two events: (a) a new Lead is created (quote request or
+     sample request), and (b) a chat answer is flagged "ต้องให้ AE ตรวจสอบ".
+     =========================================================================== */
+  function getUnreadCount(key) { return lsGet(key, 0); }
+  function setUnreadCount(key, n) { lsSet(key, Math.max(0, n || 0)); }
+  function incUnreadCount(key) { setUnreadCount(key, getUnreadCount(key) + 1); }
+
+  function ensureNotificationPermission() {
+    if (typeof Notification === "undefined") return;
+    if (Notification.permission === "default") {
+      Notification.requestPermission().catch(function () {});
+    }
+  }
+
+  function sendBrowserNotification(title, body) {
+    if (typeof Notification === "undefined") return false;
+    if (Notification.permission !== "granted") return false;
+    try {
+      new Notification(title, { body: body });
+      return true;
+    } catch (e) {
+      console.warn("Notification failed:", e);
+      return false;
+    }
+  }
 
   function lsGet(key, fallback) {
     try {
@@ -492,7 +531,10 @@
     t, STRINGS,
     answerQuery, getProductById, getPriceRule, findProductsForUseCase,
     createLead, updateLeadStatus, leadsToCsv, downloadCsv,
-    logChatQuery
+    logChatQuery,
+    NOTIF_KEYS: { unreadLeads: STORE_KEYS.unreadLeads, unreadAE: STORE_KEYS.unreadAE },
+    getUnreadCount, setUnreadCount, incUnreadCount,
+    ensureNotificationPermission, sendBrowserNotification
   };
 })();
 
@@ -629,7 +671,39 @@
     if (viewName === "kb") renderKbTable();
     if (viewName === "leads") renderLeadsTable();
     if (viewName === "quote") populateQuoteFormOptions();
+    // Opening the screen that the notification was about clears its unread badge.
+    if (viewName === "leads") { AI.setUnreadCount(AI.NOTIF_KEYS.unreadLeads, 0); renderNotificationBadges(); }
+    if (viewName === "chat") { AI.setUnreadCount(AI.NOTIF_KEYS.unreadAE, 0); renderNotificationBadges(); }
     window.scrollTo(0, 0);
+  }
+
+  /* ---------------------------------------------------------------------------
+     NOTIFICATION BADGES (red counter on nav items, see Part 1 for the
+     Notification API trigger). Reflects unread leads / unread AE-confirm
+     flags so nothing is missed even if a browser popup was missed or denied.
+     --------------------------------------------------------------------------- */
+  function setNavBadge(viewName, count) {
+    document.querySelectorAll('.nav-item[data-view="' + viewName + '"]').forEach(function (btn) {
+      let badge = btn.querySelector(".nav-badge");
+      if (count > 0) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "nav-badge";
+          badge.style.cssText = "display:inline-block;min-width:18px;height:18px;line-height:18px;" +
+            "border-radius:9px;background:#e0383e;color:#fff;font-size:11px;font-weight:700;" +
+            "text-align:center;margin-left:6px;padding:0 4px;vertical-align:middle;";
+          btn.appendChild(badge);
+        }
+        badge.textContent = count > 99 ? "99+" : String(count);
+      } else if (badge) {
+        badge.remove();
+      }
+    });
+  }
+
+  function renderNotificationBadges() {
+    setNavBadge("leads", AI.getUnreadCount(AI.NOTIF_KEYS.unreadLeads));
+    setNavBadge("chat", AI.getUnreadCount(AI.NOTIF_KEYS.unreadAE));
   }
 
   function escapeHtml(str) {
@@ -709,6 +783,18 @@
     document.querySelectorAll("#chatMessages .cta-btn").forEach(function (btn) {
       btn.addEventListener("click", function () { handleCtaAction(btn.getAttribute("data-action")); });
     });
+    // Notify the sales team when this answer needs AE confirmation, or matched
+    // nothing at all (the hard fallback) — so a wrong/incomplete answer never
+    // goes unnoticed by the human in the loop.
+    const needsAE = (answer.matched === false) || (answer.aeConfirm && answer.aeConfirm.length > 0);
+    if (needsAE) {
+      AI.incUnreadCount(AI.NOTIF_KEYS.unreadAE);
+      renderNotificationBadges();
+      AI.sendBrowserNotification(
+        "⚠️ มีคำถามที่ต้องให้ AE ตรวจสอบ",
+        "ลูกค้าถาม: " + text
+      );
+    }
   }
 
   function handleCtaAction(action) {
@@ -955,6 +1041,13 @@
     msgEl.style.display = "block";
     msgEl.textContent = "ได้รับข้อมูลแล้ว ทีม AE จะตรวจสอบราคา stock และ lead time ก่อนยืนยันกลับ";
     showToast("บันทึก Lead เรียบร้อย: " + lead.id);
+    // Notify the sales team immediately that a new lead came in.
+    AI.incUnreadCount(AI.NOTIF_KEYS.unreadLeads);
+    renderNotificationBadges();
+    AI.sendBrowserNotification(
+      "🔔 Lead ใหม่: " + (channel === "sample_request" ? "ขอตัวอย่างสินค้า" : "ขอใบเสนอราคา"),
+      name + (productNames ? " — สนใจ: " + productNames : "") + " (โทร " + phone + ")"
+    );
     form.reset();
     document.querySelectorAll('#quoteProductChips input').forEach(function (cb) {
       cb.checked = false;
@@ -1221,6 +1314,11 @@
     wireNavigation();
     wireLangToggle();
     applyLanguageStrings();
+
+    // Notification system: ask permission once, then reflect any unread
+    // leads / AE-confirm flags left over from a previous session as badges.
+    AI.ensureNotificationPermission();
+    renderNotificationBadges();
 
     // Register service worker only when served over http(s) — file:// does not
     // support service worker registration and would otherwise log a console error.
