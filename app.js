@@ -549,7 +549,7 @@
     seedIfNeeded, resetDemoData,
     LANG: function () { return LANG; },
     setLang: function (l) { LANG = l; lsSet(STORE_KEYS.lang, l); },
-    t, STRINGS,
+    t, STRINGS, QUICK_QUESTIONS_BY_LANG,
     answerQuery, getProductById, getPriceRule, findProductsForUseCase,
     createLead, updateLeadStatus, leadsToCsv, downloadCsv,
     logChatQuery,
@@ -738,7 +738,7 @@
   function renderQuickQuestions() {
     const wrap = document.getElementById("quickQuestions");
     if (!wrap) return;
-    const list = QUICK_QUESTIONS_BY_LANG[AI.LANG()] || QUICK_QUESTIONS_BY_LANG.th;
+    const list = AI.QUICK_QUESTIONS_BY_LANG[AI.LANG()] || AI.QUICK_QUESTIONS_BY_LANG.th;
     wrap.innerHTML = list.map(function (q) {
       return '<button class="quick-chip" type="button">' + escapeHtml(q) + "</button>";
     }).join("");
