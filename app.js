@@ -201,7 +201,9 @@
       sectionCustomer: "สำหรับลูกค้า", sectionSales: "สำหรับทีมขาย",
       fallback: "ข้อมูลนี้ต้องให้ AE ตรวจสอบเพิ่มเติมก่อน เพื่อป้องกันการให้ข้อมูลผิดพลาด",
       askPlaceholder: "พิมพ์คำถามเกี่ยวกับหนัง...",
-      send: "ส่ง"
+      send: "ส่ง",
+      brandBadge: "ใช้ข้อมูลของบริษัทเท่านั้น",
+      welcomeMessage: "สวัสดีค่ะ/ครับ ยินดีต้อนรับสู่ Leather AI Sales Assistant ของ Leather Warehouse สามารถพิมพ์คำถามเกี่ยวกับหนังแท้ หนังเทียม ไมโครไฟเบอร์ มารีน หรืออากาศยานได้เลย หรือเลือกคำถามด่วนด้านบน"
     },
     en: {
       navChat: "Expert Chat", navFinder: "Product Finder", navCompare: "Compare",
@@ -210,8 +212,27 @@
       sectionCustomer: "Customer", sectionSales: "Sales Team",
       fallback: "This information needs AE confirmation before we can answer accurately.",
       askPlaceholder: "Type your question about leather...",
-      send: "Send"
+      send: "Send",
+      brandBadge: "Company Knowledge Only",
+      welcomeMessage: "Hi! Welcome to Leather Warehouse's AI Sales Assistant. Ask about genuine leather, faux leather, microfiber, marine, or aviation leather, or pick a quick question above."
     }
+  };
+
+  // Quick-question chips shown above the chat input — kept bilingual so the
+  // chips themselves switch language along with the rest of the UI. The
+  // keyword detector in answerQuery() understands both TH and EN phrasing,
+  // so either version still routes to the correct answer.
+  const QUICK_QUESTIONS_BY_LANG = {
+    th: [
+      "หนังแบบไหนเหมาะกับเรือยอชต์", "หนังแบบไหนเหมาะกับโรงแรม", "หนังแบบไหนเหมาะกับเครื่องบิน",
+      "หนังแท้กับหนังเทียมต่างกันอย่างไร", "มีรุ่นกันไฟ/กันน้ำ/กัน UV ไหม",
+      "ราคาประมาณเท่าไหร่", "lead time กี่วัน", "ขอตัวอย่างสินค้า (Sample)", "ขอใบเสนอราคา"
+    ],
+    en: [
+      "Which leather suits a yacht?", "Which leather suits a hotel?", "Which leather suits an aircraft?",
+      "What's the difference between genuine and faux leather?", "Do you have fire/water/UV resistant options?",
+      "How much does it cost?", "What's the lead time?", "Request a sample", "Request a quote"
+    ]
   };
   function t(key) { return (STRINGS[LANG] && STRINGS[LANG][key]) || STRINGS.th[key] || key; }
 
@@ -714,16 +735,11 @@
   /* ---------------------------------------------------------------------------
      CHAT VIEW
      --------------------------------------------------------------------------- */
-  const QUICK_QUESTIONS = [
-    "หนังแบบไหนเหมาะกับเรือยอชต์", "หนังแบบไหนเหมาะกับโรงแรม", "หนังแบบไหนเหมาะกับเครื่องบิน",
-    "หนังแท้กับหนังเทียมต่างกันอย่างไร", "มีรุ่นกันไฟ/กันน้ำ/กัน UV ไหม",
-    "ราคาประมาณเท่าไหร่", "lead time กี่วัน", "ขอตัวอย่างสินค้า (Sample)", "ขอใบเสนอราคา"
-  ];
-
   function renderQuickQuestions() {
     const wrap = document.getElementById("quickQuestions");
     if (!wrap) return;
-    wrap.innerHTML = QUICK_QUESTIONS.map(function (q) {
+    const list = QUICK_QUESTIONS_BY_LANG[AI.LANG()] || QUICK_QUESTIONS_BY_LANG.th;
+    wrap.innerHTML = list.map(function (q) {
       return '<button class="quick-chip" type="button">' + escapeHtml(q) + "</button>";
     }).join("");
     wrap.querySelectorAll(".quick-chip").forEach(function (btn) {
@@ -1263,6 +1279,9 @@
     document.documentElement.lang = AI.LANG();
     const chatInput = document.getElementById("chatInput");
     if (chatInput) chatInput.placeholder = AI.t("askPlaceholder");
+    // Quick-question chips have their own per-language text list (not plain
+    // data-i18n keys), so they need an explicit re-render on every toggle.
+    renderQuickQuestions();
   }
 
   function wireLangToggle() {
@@ -1298,7 +1317,7 @@
     AI.seedIfNeeded();
     renderQuickQuestions();
     appendChatMessage("bot", renderStructuredAnswer({
-      summaryHtml: "สวัสดีค่ะ/ครับ ยินดีต้อนรับสู่ Leather AI Sales Assistant ของ Leather Warehouse สามารถพิมพ์คำถามเกี่ยวกับหนังแท้ หนังเทียม ไมโครไฟเบอร์ มารีน หรืออากาศยานได้เลย หรือเลือกคำถามด่วนด้านบน",
+      summaryHtml: AI.t("welcomeMessage"),
       recommended: [], reasons: [], cautions: [], aeConfirm: [], cta: []
     }));
 
